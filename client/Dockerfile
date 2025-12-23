@@ -1,16 +1,8 @@
-FROM node:20-slim
+# השתמש בשרת Nginx קל
+FROM nginx:alpine
 
-WORKDIR /app
+# העתקת קבצי ה-HTML, CSS ו-JS לתיקיית ההגשה של Nginx
+COPY . /usr/share/nginx/html/
 
-# העתקת קבצי ניהול חבילות (אם קיימים בתיקיית הלקוח)
-COPY package*.json ./
-
-# התקנת תלויות (כולל Jest עבור הטסטים)
-RUN npm install
-
-# העתקת שאר קבצי התוסף
-COPY . .
-
-# פקודת ברירת המחדל תהיה להריץ טסטים
-# זה מאפשר ל-Jenkins להריץ את הקונטיינר הזה ולראות אם הלקוח תקין
-CMD ["npm", "test"]
+# חשיפת פורט 80 (סטנדרט לאינטרנט)
+EXPOSE 80

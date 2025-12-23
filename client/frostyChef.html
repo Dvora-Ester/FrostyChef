@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef-Mirror | עוזר המטבח החכם</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">👨‍🍳</div>
+            <h1>Chef-Mirror</h1>
+            <p>המראה שרואה מה יש במקרר והופכת אותו לקסם</p>
+        </header>
+
+        <main class="app-grid">
+            <section class="input-card">
+                <div class="upload-area" id="drop-zone">
+                    <span class="icon">📸</span>
+                    <p>גרור תמונה של המקרר או לחץ להעלאה</p>
+                    <input type="file" id="file-input" hidden>
+                </div>
+
+                <div class="controls">
+                    <label>סגנון מנה:</label>
+                    <div class="dietary-options">
+                        <button class="chip active" data-type="Parve">פרווה</button>
+                        <button class="chip" data-type="Dairy">חלבי</button>
+                        <button class="chip" data-type="Meat">בשרי</button>
+                    </div>
+
+                    <label for="notes">הערות לשף:</label>
+                    <textarea id="notes" placeholder="למשל: 'בלי בצל', 'משהו חריף'..."></textarea>
+                </div>
+
+                <button id="generate-btn" class="main-btn">תכין לי משהו טעים!</button>
+            </section>
+
+            <section class="result-card" id="result-area">
+                <div class="placeholder">
+                    <span class="icon">✨</span>
+                    <p>המתכון יופיע כאן...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
