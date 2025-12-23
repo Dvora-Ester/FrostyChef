@@ -25,7 +25,7 @@ COPY server/ .
 # ✅ העתקת תיקיית הפייתון שנמצאת רמה אחת מעל (בזמן הבנייה נדאג שהיא תהיה זמינה)
 # הערה: נתיב זה מניח שאתה מריץ את הבנייה מתיקיית השורש של הפרויקט
 # COPY ../python_server ./python_server
-#RUN npm test
+RUN npm test
 
 EXPOSE 8080
 
