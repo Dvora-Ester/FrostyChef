@@ -6,7 +6,8 @@ pipeline {
     }
     
     environment {
-        DOCKER_USER = "youruser"
+        // החליפי את youruser בשם המשתמש שלך ב-Docker Hub
+        DOCKER_USER = "Bracha" 
         APP_NAME = "chef-mirror"
         DOCKER_HUB_CREDS = 'docker-hub-login'
         GEMINI_API_KEY = credentials('gemini-api-key')
@@ -32,7 +33,8 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    // שינוי כאן: docker compose במקום docker-compose
+                    sh 'docker compose build'
                     
                     docker.withRegistry('', "${DOCKER_HUB_CREDS}") {
                         sh "docker tag ${APP_NAME}-backend:latest ${DOCKER_USER}/${APP_NAME}-backend:latest"
@@ -48,7 +50,8 @@ pipeline {
         stage('Local Deploy') {
             steps {
                 echo 'Deploying to local Docker environment...'
-                sh 'docker-compose up -d'
+                // שינוי כאן: docker compose במקום docker-compose
+                sh 'docker compose up -d'
             }
         }
     }
