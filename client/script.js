@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // שליחה לשרת (Node.js/Python) כפי שנדרש בסעיף 1C
-            const response = await fetch('http://localhost:5000/api/recipe', {
+            const response = await fetch('http://localhost:8080/api/chef', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

@@ -8,20 +8,23 @@ export default class VisionService {
         if (!key) throw new Error("GEMINI_API_KEY missing");
 
         this.genAI = new GoogleGenerativeAI(key);
-        this.modelId = "gemini-1.5-flash";
+        // שימוש בגרסה היציבה
+        this.modelId = "gemini-2.5-flash"; 
     }
 
     async analyzeIngredients(imageBuffer, mimeType = 'image/jpeg') {
+        console.log('#analyzeIngredients');
         try {
             const model = this.genAI.getGenerativeModel({ 
                 model: this.modelId,
                 generationConfig: { responseMimeType: "application/json" }
             });
 
-            // פרומפט ממוקד ל-Chef-Mirror
             const prompt = `
             You are an expert chef and nutritionist. Analyze the image of the fridge or ingredients.
-            Return a JSON object with:
+            Return ONLY a valid JSON object. Do not include markdown formatting or backticks.
+            
+            Structure:
             {
               "detected_ingredients": ["list of items found"],
               "suggested_recipe": {
@@ -35,16 +38,26 @@ export default class VisionService {
             }`;
 
             const imagePart = {
-                inlineData: { data: imageBuffer.toString("base64"), mimeType }
+                inlineData: {
+                    data: imageBuffer.toString("base64"),
+                    mimeType
+                }
             };
 
             const result = await model.generateContent([prompt, imagePart]);
             const response = await result.response;
-            return JSON.parse(response.text());
+            let text = response.text();
+
+            // מנגנון ניקוי לטקסט למקרה שה-AI מחזיר Markdown
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                text = jsonMatch[0];
+            }
+           console.log("VisionService Result Text:");
+            return JSON.parse(text);
         } catch (error) {
             console.error("VisionService Error:", error);
             throw error;
         }
     }
 }
-
