@@ -2,8 +2,9 @@ pipeline {
     agent any
     
     tools {
-        nodejs 'node' // השם שהגדרת ב-Tools
+        nodejs 'node' 
     }
+    
     environment {
         DOCKER_USER = "youruser"
         APP_NAME = "chef-mirror"
@@ -23,7 +24,6 @@ pipeline {
                 dir('server') {
                     sh 'npm config set strict-ssl false'
                     sh 'npm install'
-                    // הרצת הטסטים מהקובץ visionService.test.js
                     sh 'npm test'
                 }
             }
@@ -32,7 +32,6 @@ pipeline {
         stage('Build & Push') {
             steps {
                 script {
-                    [cite_start]// בנייה באמצעות docker-compose כפי שמוגדר בפרויקט [cite: 1]
                     sh 'docker-compose build'
                     
                     docker.withRegistry('', "${DOCKER_HUB_CREDS}") {
@@ -48,7 +47,6 @@ pipeline {
 
         stage('Local Deploy') {
             steps {
-                [cite_start]// שלב זה מעדכן את הקונטיינרים שאת רואה ב-Docker Desktop [cite: 1]
                 echo 'Deploying to local Docker environment...'
                 sh 'docker-compose up -d'
             }
