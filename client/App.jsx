@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './ChefMirror.css';
+import './App.css';
+//import './ChefMirror.css';
 
 const ChefMirror = () => {
   const [image, setImage] = useState(null);
