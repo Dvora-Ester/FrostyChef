@@ -15,3 +15,17 @@ services:
       - ./server:/app  # מקשר את תיקיית השרת המקומית לתיקיית העבודה בדוקר
     #  - /app/node_modules
  
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    ports:
+      - "9000:8080" # אנחנו נכנס לג'נקינס דרך פורט 9000
+      - "50000:50000"
+    container_name: jenkins
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # מאפשר לג'נקינס להפעיל דוקר
+
+volumes:
+  jenkins_data:
