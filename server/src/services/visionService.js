@@ -1,72 +1,65 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+
 dotenv.config();
 
-export default class VisionService {
-    constructor(apiKey = null) {
-        const key = apiKey || process.env.GEMINI_API_KEY;
-        if (!key) throw new Error("GEMINI_API_KEY missing");
-
-        this.genAI = new GoogleGenerativeAI(key);
-        // שימוש בגרסה היציבה
-        this.modelId = "gemini-2.5-flash";
+class VisionService {
+    constructor() {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("GEMINI_API_KEY missing");
+        }
+        this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        // הגדרה שמכריחה את המודל להחזיר JSON
+        this.model = this.genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: { responseMimeType: "application/json" }
+        });
     }
 
-    async analyzeIngredients(imageBuffer, mimeType = 'image/jpeg') {
-        console.log('#analyzeIngredients');
+    async analyzeIngredients(imageBuffer, mimeType) {
         try {
-            const model = this.genAI.getGenerativeModel({
-                model: this.modelId,
-                generationConfig: {
-                    temperature: 0.4,
-                    topP: 0.9,
-                    maxOutputTokens: 1024
-                }
-            });
+            console.log("Analyzing image for ingredients...");
 
-            const prompt = `
-You are an API that returns ONLY valid JSON.
-You MUST return raw JSON and nothing else.
-Do NOT include explanations, comments, markdown, or newlines outside JSON.
-All strings MUST be properly escaped.
-
-Return exactly this structure:
-
-{
-  "detected_ingredients": ["string"],
-  "suggested_recipe": {
-    "name": "string",
-    "difficulty": "easy|medium|hard",
-    "prep_time": "string",
-    "instructions": ["string"],
-    "nutrition_summary": "string"
-  },
-  "missing_essential_items": ["string"]
-}
-`;
-
+            const prompt = `Analyze this fridge image. 
+            Return a JSON object with this exact structure:
+            {
+              "detected_ingredients": ["list", "of", "items"],
+              "suggested_recipe": { 
+                "name": "recipe name", 
+                "instructions": "clear steps" 
+              },
+              "missing_essential_items": ["item1"]
+            }
+            Important: Ensure the JSON is complete and not truncated.`;
 
             const imagePart = {
                 inlineData: {
                     data: imageBuffer.toString("base64"),
                     mimeType
-                }
+                },
             };
 
-            const result = await model.generateContent([prompt, imagePart]);
+            const result = await this.model.generateContent([prompt, imagePart]);
             const response = await result.response;
             let text = response.text();
 
-            // מנגנון ניקוי לטקסט למקרה שה-AI מחזיר Markdown
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                text = jsonMatch[0];
+            // ניקוי תגיות Markdown במקרה שהמודל הוסיף אותן למרות ההגדרות
+            text = text.replace(/```json|```/g, "").trim();
+
+            console.log("VisionService Raw Text:", text);
+
+            try {
+                return JSON.parse(text);
+            } catch (parseError) {
+                console.error("JSON Parse Error. Raw text was:", text);
+                // במקרה של שגיאת Parse, ננסה להחזיר אובייקט בסיסי כדי שהאפליקציה לא תקרוס
+                throw new Error("Failed to parse AI response");
             }
-            console.log("VisionService Result Text:");
-            return JSON.parse(text);
         } catch (error) {
-            console.error("VisionService Error:", error);
+            console.error("VisionService Error:", error.message);
             throw error;
         }
     }
 }
+
+export default VisionService;
