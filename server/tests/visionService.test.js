@@ -1,4 +1,4 @@
-import VisionService from './src/services/visionService.js';
+import VisionService from '../src/services/visionService.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // יצירת "מוק" לספרייה של גוגל
