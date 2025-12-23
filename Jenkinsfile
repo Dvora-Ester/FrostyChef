@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                     // שינוי כאן: docker compose במקום docker-compose
-                    sh 'docker compose build'
+                    sh 'docker-compose build'
                     
                     docker.withRegistry('', "${DOCKER_HUB_CREDS}") {
                         sh "docker tag ${APP_NAME}-backend:latest ${DOCKER_USER}/${APP_NAME}-backend:latest"
@@ -51,7 +51,7 @@ pipeline {
             steps {
                 echo 'Deploying to local Docker environment...'
                 // שינוי כאן: docker compose במקום docker-compose
-                sh 'docker compose up -d'
+                sh 'docker-compose up -d'
             }
         }
     }
