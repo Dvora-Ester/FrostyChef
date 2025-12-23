@@ -1,18 +1,21 @@
 pipeline {
     agent any
-    
-    tools {
-        nodejs 'node' 
-    }
-    
+
     environment {
-        DOCKER_USER = "Bracha" 
+        DOCKER_USER = "youruser"
         APP_NAME = "chef-mirror"
         DOCKER_HUB_CREDS = 'docker-hub-login'
         GEMINI_API_KEY = credentials('gemini-api-key')
     }
 
     stages {
+        stage('Cleanup') {
+            steps {
+                // ניקוי סביבה לפני התחלה
+                sh 'docker-compose down --remove-orphans'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -22,48 +25,44 @@ pipeline {
         stage('Test Backend') {
             steps {
                 dir('server') {
+                    // הגדרות SSL לטובת עבודה ברשת מסוננת
                     sh 'npm config set strict-ssl false'
                     sh 'npm install'
-                    sh 'npm test'
+                    sh "export GEMINI_API_KEY=${GEMINI_API_KEY} && npm test"
                 }
             }
         }
 
-        stage('Build & Push') {
+        stage('Build & Tag Images') {
             steps {
                 script {
-                    // שימוש ב-docker compose (ללא מקף)
-                    sh 'docker compose build'
+                    // בנייה מרוכזת דרך ה-Compose
+                    sh 'docker-compose build'
                     
+                    // תיוג האימג'ים שנוצרו לפורמט של Docker Hub
+                    // הערה: Docker Compose יוצר אימג'ים בשם: project_service
+                    sh "docker tag chef-mirror-backend:latest ${DOCKER_USER}/${APP_NAME}-backend:latest"
+                    sh "docker tag chef-mirror-frontend:latest ${DOCKER_USER}/${APP_NAME}-frontend:latest"
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
                     docker.withRegistry('', "${DOCKER_HUB_CREDS}") {
-                        // תיוג ודחיפה של ה-Backend
-                        sh "docker tag ${APP_NAME}-backend:latest ${DOCKER_USER}/${APP_NAME}-backend:latest"
                         sh "docker push ${DOCKER_USER}/${APP_NAME}-backend:latest"
-                        
-                        // תיוג ודחיפה של ה-Frontend
-                        sh "docker tag ${APP_NAME}-frontend:latest ${DOCKER_USER}/${APP_NAME}-frontend:latest"
                         sh "docker push ${DOCKER_USER}/${APP_NAME}-frontend:latest"
                     }
                 }
-            }
-        }
-
-        stage('Local Deploy') {
-            steps {
-                echo 'Deploying to local Docker environment...'
-                // עצירה של קונטיינרים ישנים והרצה מחדש
-                sh 'docker compose down'
-                sh 'docker compose up -d'
             }
         }
     }
     
     post {
         always {
-            echo 'Pipeline finished.'
-        }
-        failure {
-            echo 'Pipeline failed. Check logs for details.'
+            // ניקוי אימג'ים מקומיים כדי לא למלא את הדיסק של השרת
+            sh 'docker system prune -f'
         }
     }
 }

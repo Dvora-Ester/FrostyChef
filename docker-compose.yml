@@ -1,18 +1,23 @@
 services:
   frontend:
-    build: ./client
+    image: chef-mirror-frontend
+    build: 
+      context: ./client  # מומלץ להגדיר context מפורש
     ports:
       - "5173:5173"
     depends_on:
       - backend
+
   backend:
+    image: chef-mirror-backend
     build:
       context: .
       dockerfile: server/Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./server:/app  # מקשר את תיקיית השרת המקומית לתיקיית העבודה בדוקר
+    # הערה חשובה: ב-CI/CD (ג'נקינס) מומלץ לבטל את ה-volumes כי הקוד כבר מועתק ב-Dockerfile
+    # volumes:
+    #   - ./server:/app  # מקשר את תיקיית השרת המקומית לתיקיית העבודה בדוקר
     #  - /app/node_modules
  
 #   jenkins:
