@@ -1,0 +1,64 @@
+.chef-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Inter', sans-serif;
+    background-color: #fffaf5;
+}
+
+.chef-header { text-align: center; margin-bottom: 40px; }
+.chef-logo { font-size: 3rem; margin-bottom: 10px; }
+
+.chef-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* WOW EFFECT */
+    border-top: 6px solid #f97316;
+}
+
+.upload-box {
+    border: 2px dashed #fdba74;
+    border-radius: 15px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.preview-img { width: 100%; height: 100%; object-fit: cover; }
+
+.chip-group { display: flex; gap: 10px; margin: 10px 0 20px 0; }
+.chip {
+    flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 30px;
+    background: white; cursor: pointer; transition: 0.3s;
+}
+.chip.active { background: #f97316; color: white; border-color: #f97316; }
+
+textarea {
+    width: 100%; height: 80px; padding: 10px; border-radius: 10px;
+    border: 1px solid #ddd; margin-top: 10px;
+}
+
+.main-btn {
+    width: 100%; padding: 15px; background: #f97316; color: white;
+    border: none; border-radius: 12px; font-weight: bold; cursor: pointer;
+}
+
+.recipe-content {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
