@@ -9,33 +9,42 @@ export default class VisionService {
 
         this.genAI = new GoogleGenerativeAI(key);
         // שימוש בגרסה היציבה
-        this.modelId = "gemini-2.5-flash"; 
+        this.modelId = "gemini-2.5-flash";
     }
 
     async analyzeIngredients(imageBuffer, mimeType = 'image/jpeg') {
         console.log('#analyzeIngredients');
         try {
-            const model = this.genAI.getGenerativeModel({ 
+            const model = this.genAI.getGenerativeModel({
                 model: this.modelId,
-                generationConfig: { responseMimeType: "application/json" }
+                generationConfig: {
+                    temperature: 0.4,
+                    topP: 0.9,
+                    maxOutputTokens: 1024
+                }
             });
 
             const prompt = `
-            You are an expert chef and nutritionist. Analyze the image of the fridge or ingredients.
-            Return ONLY a valid JSON object. Do not include markdown formatting or backticks.
-            
-            Structure:
-            {
-              "detected_ingredients": ["list of items found"],
-              "suggested_recipe": {
-                "name": "string",
-                "difficulty": "easy/medium/hard",
-                "prep_time": "string",
-                "instructions": ["step 1", "step 2"],
-                "nutrition_summary": "calories, protein, etc."
-              },
-              "missing_essential_items": ["items needed but not in the image"]
-            }`;
+You are an API that returns ONLY valid JSON.
+You MUST return raw JSON and nothing else.
+Do NOT include explanations, comments, markdown, or newlines outside JSON.
+All strings MUST be properly escaped.
+
+Return exactly this structure:
+
+{
+  "detected_ingredients": ["string"],
+  "suggested_recipe": {
+    "name": "string",
+    "difficulty": "easy|medium|hard",
+    "prep_time": "string",
+    "instructions": ["string"],
+    "nutrition_summary": "string"
+  },
+  "missing_essential_items": ["string"]
+}
+`;
+
 
             const imagePart = {
                 inlineData: {
@@ -53,7 +62,7 @@ export default class VisionService {
             if (jsonMatch) {
                 text = jsonMatch[0];
             }
-           console.log("VisionService Result Text:");
+            console.log("VisionService Result Text:");
             return JSON.parse(text);
         } catch (error) {
             console.error("VisionService Error:", error);

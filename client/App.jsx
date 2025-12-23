@@ -22,19 +22,24 @@ const ChefMirror = () => {
       reader.readAsDataURL(file);
     }
   };
-
+const speakRecipe = () => {
+  const speech = new SpeechSynthesisUtterance(`${recipe.title}. המצרכים הם: ${recipe.ingredients.join(', ')} . הוראות הכנה: ${recipe.instructions}`);
+  speech.lang = 'en-US'; // הגדרה לעברית
+  window.speechSynthesis.speak(speech);
+};
   const generateRecipe = async () => {
     if (!base64) return alert("Please upload a photo of your fridge first!");
     
     setLoading(true);
     try {
       // קריאה ל-Backend (סעיף 27)
-      const response = await fetch('http://localhost:5000/api/recipe', {
+      const response = await fetch('http://localhost:8080/api/chef', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64, type: dietary, notes })
       });
       const data = await response.json();
+      console.log("Received Recipe:", data);
       setRecipe(data);
     } catch (err) {
       console.error(err);
@@ -104,6 +109,7 @@ const ChefMirror = () => {
               <ul>{recipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}</ul>
               <h4>Instructions:</h4>
               <p>{recipe.instructions}</p>
+              <button className="speak-btn" onClick={speakRecipe}>🔊 Hear Recipe</button>
             </div>
           )}
         </section>
