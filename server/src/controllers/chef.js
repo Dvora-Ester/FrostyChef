@@ -11,14 +11,14 @@ export default async function generateRecipe(req, res) {
     if (!image) {
       return res.status(400).json({ ok: false, error: "לא התקבלה תמונה" });
     }
-
+ 
     // חילוץ ה-Base64 הנקי (ללא ה-prefix של data:image/jpeg;base64)
     const base64Data = image.split(",")[1] || image;
     const imageBuffer = Buffer.from(base64Data, 'base64');
 
     console.log('*8 Analyzing image for ingredients...');
     // שליחת ההערות והסגנון (פרווה/בשרי) כחלק מהפרומפט
-    const result = await visionProcessor.analyzeIngredients(imageBuffer, 'image/jpeg');
+    const result = await visionProcessor.analyzeIngredients(imageBuffer, 'image/jpeg', type, notes);
 
     return res.json({
       ok: true,

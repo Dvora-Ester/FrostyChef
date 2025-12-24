@@ -4,7 +4,7 @@ services:
     build: 
       context: ./client  # מומלץ להגדיר context מפורש
     ports:
-      - "5173:5173"
+      - "5173:80"  # מפנה את פורט 5173 במכונה המקומית לפורט 80 בקונטיינר
     depends_on:
       - backend
 

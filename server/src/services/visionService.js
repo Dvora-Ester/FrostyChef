@@ -10,27 +10,44 @@ class VisionService {
         }
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         // הגדרה שמכריחה את המודל להחזיר JSON
-        this.model = this.genAI.getGenerativeModel({ 
+        this.model = this.genAI.getGenerativeModel({
             model: "gemini-2.5-flash",
             generationConfig: { responseMimeType: "application/json" }
         });
     }
 
-    async analyzeIngredients(imageBuffer, mimeType) {
+    async analyzeIngredients(imageBuffer, mimeType, dietaryType, notes) {
         try {
             console.log("Analyzing image for ingredients...");
+            console.log("Dietary Type:", mimeType, dietaryType, notes);
+
+            // const prompt = `Analyze this fridge image. 
+            // Return a JSON object with this exact structure:
+            // {
+            //   "detected_ingredients": ["list", "of", "items"],
+            //   "suggested_recipe": { 
+            //     "name": "recipe name", 
+            //     "instructions": "clear steps" 
+            //   },
+            //   "missing_essential_items": ["item1"]
+            // }
+            // Important: Ensure the JSON is complete and not truncated.`;
 
             const prompt = `Analyze this fridge image. 
-            Return a JSON object with this exact structure:
-            {
-              "detected_ingredients": ["list", "of", "items"],
-              "suggested_recipe": { 
-                "name": "recipe name", 
-                "instructions": "clear steps" 
-              },
-              "missing_essential_items": ["item1"]
-            }
-            Important: Ensure the JSON is complete and not truncated.`;
+        User Preferences:
+        - Only dietary Type: ${dietaryType} (Ensure the recipe follows this rule: Meat, Dairy, or Parve).
+        - Additional Notes: ${notes || "None"}.
+
+        Return a JSON object with this exact structure:
+        {
+          "detected_ingredients": ["list", "of", "items"],
+          "suggested_recipe": { 
+            "name": "recipe name", 
+            "instructions": "clear steps" 
+          },
+          "missing_essential_items": ["item1"]
+        }
+        Important: The recipe MUST match the dietary type and consider the notes provided.`;
 
             const imagePart = {
                 inlineData: {
